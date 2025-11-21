@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGENDA FISIOTERAPEUTA EULÁLIA - Navegação Semanal</title>
+    
+    <style>
+        /* * ----------------------------------------
+         * 2. Estilos CSS
+         * ----------------------------------------
+         */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #e6f2ff;
+        }
+
+        .page-wrapper {
+            background-image: none;
+            background-color: #e6f2ff; 
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        /* O CONTAINER agora tem a imagem de fundo e uma leve opacidade */
+        .container {
+            max-width: 1400px; 
+            margin: 0 auto;
+            
+            background-image: url('IMG-1.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            
+            /* Camada de branco semi-transparente sobre a imagem de fundo do container */
+            background-color: rgba(255, 255, 255, 0.85); 
+            background-blend-mode: overlay; 
+            
+            padding: 20px;
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); 
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap; 
+        }
+
+        h1 {
+            font-size: 2em; 
+            color: #004085; 
+            text-align: center;
+            flex-grow: 1; 
+            margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); 
+        }
+        
+        .month-display {
+            font-size: 1.3em;
+            color: #004085;
+            margin-top: 10px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+
+        .month-indicator {
+            padding: 4px 10px;
+            border-radius: 6px;
+            background-color: #ff5722; 
+            color: white;
+            font-size: 0.9em;
+            margin-left: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .nav-button {
+            padding: 12px 18px; 
+            cursor: pointer;
+            background-color: #1e88e5; 
+            color: white;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.3s, transform 0.2s;
+            margin: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .nav-button:hover {
+            background-color: #1565c0; 
+            transform: translateY(-2px);
+        }
+
+        /* Estilos da Tabela de Agendamentos */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px; 
+            table-layout: fixed; 
+        }
+
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #b0c4de; 
+            padding: 8px; 
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.85em; 
+            transition: background-color 0.3s, border-color 0.3s; 
+            /* REMOVIDO: background-color padrão em td para que o fundo do container apareça */
+        }
+
+        .schedule-table th {
+            /* AJUSTADO: Fundo do cabeçalho com transparência */
+            background-color: rgba(173, 216, 230, 0.9); 
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            text-transform: uppercase; 
+        }
+        
+        .day-header {
+            display: block;
+            font-size: 1.05em;
+            margin-top: 5px;
+            color: #004085;
+        }
+
+        /* Destaque para o dia atual (Amarelo vibrante SEMI-TRANSPARENTE) */
+        .today-header {
+            background-color: rgba(255, 215, 0, 0.9) !important; 
+            border: 1px solid #daaa00 !important;
+            color: #333;
+            box-shadow: inset 0 0 5px rgba(255,165,0,0.5); 
+        }
+        .today-cell {
+            background-color: rgba(255, 250, 205, 0.8) !important; 
+            border-left: 3px solid #ffcc00 !important; 
+        }
+
+        /* Destaque para dias passados (Vermelho mais profundo SEMI-TRANSPARENTE) */
+        .past-day-header {
+            background-color: rgba(217, 83, 79, 0.9) !important; 
+            color: white;
+            box-shadow: inset 0 0 5px rgba(255,0,0,0.3);
+        }
+        .past-day-cell {
+            background-color: rgba(248, 215, 218, 0.8) !important; 
+        }
+
+        /* Destaque para slots preenchidos (Verde mais intenso SEMI-TRANSPARENTE) */
+        .filled-slot {
+            background-color: rgba(40, 167, 69, 0.85) !important; 
+            border-left: 3px solid #1a7a40 !important;
+            /* REMOVIDO: color: #fff; para manter o texto escuro */
+            font-weight: normal; /* Remove negrito forçado */
+        }
+        .filled-slot label {
+            /* NOVO: Força o label para um verde escuro para maior contraste */
+            color: #1a7a40 !important; 
+            font-weight: bold !important;
+        }
+        .filled-slot input {
+            /* NOVO: Garante que o texto do input seja escuro */
+            color: #333 !important; 
+            /* NOVO: Borda tracejada escura */
+            border-bottom: 1px dashed rgba(51, 51, 51, 0.7); 
+            /* NOVO: Fundo do input mais transparente */
+            background-color: rgba(255, 255, 255, 0.5) !important; 
+        }
+
+
+        /* Sábados e Domingos (Vermelho Forte e Inativos SEMI-TRANSPARENTE) */
+        .weekend-day-header {
+            background-color: rgba(165, 42, 42, 0.9) !important; 
+            color: white;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+        .weekend-day-cell {
+            background-color: rgba(248, 192, 192, 0.7) !important; 
+            pointer-events: none; 
+            cursor: not-allowed;
+            color: #666;
+            font-style: italic;
+            text-align: center; 
+            line-height: 1.5; 
+        }
+        .weekend-day-cell input, .weekend-day-cell label {
+            display: none; 
+        }
+
+
+        .time-column {
+            width: 70px;
+            background-color: rgba(240, 248, 255, 0.9); 
+            text-align: center !important;
+            font-weight: bold;
+            color: #333;
+            border-right: 2px solid #a0c0e0; 
+        }
+
+        /* Estilos dos Inputs de Agendamento */
+        .appointment-slot input {
+            width: 95%;
+            padding: 3px; 
+            margin-top: 3px;
+            margin-bottom: 5px;
+            border: 1px solid #c0c0c0; 
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 0.75em; 
+            background-color: rgba(255, 255, 255, 0.7); 
+            color: #333;
+        }
+
+        .appointment-slot label {
+            font-size: 0.7em; 
+            display: block;
+            margin-top: 3px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* -------------------------------------------
+         * ESTILOS PARA IMPRESSÃO EM A4 PAISAGEM (DEITADA)
+         * ------------------------------------------- */
+        @media print {
+            @page {
+                size: A4 landscape; 
+                margin: 1cm;
+            }
+
+            .print-hide, .nav-button, .page-wrapper, .month-display {
+                display: none !important; 
+            }
+            
+            body {
+                margin: 0;
+                background-color: #fff;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: none; 
+                width: 27cm;
+                background-image: none !important;
+                background-color: #fff !important; 
+            }
+            
+            /* Ajustes finos na tabela para impressão */
+            .schedule-table {
+                font-size: 9pt; 
+            }
+            .schedule-table th, .schedule-table td {
+                padding: 2px; 
+                height: 1.1cm; 
+                background-color: #fff !important; 
+            }
+            .weekend-day-cell {
+                background-color: #f0f0f0 !important; 
+                color: #888;
+            }
+            .weekend-day-cell input {
+                display: none;
+            }
+            .appointment-slot input {
+                border: none;
+                border-bottom: 1px dashed #999; 
+                background: none;
+                padding: 0;
+                margin: 0;
+                width: 98%;
+                font-size: inherit;
+                color: #000; 
+            }
+            .appointment-slot label {
+                color: #000;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <div class="container">
+            <header class="print-hide">
+                <button id="prev-period" class="nav-button"> &lt; Semana Anterior</button>
+                <h1 id="main-title">AGENDA FISIOTERAPEUTA EULÁLIA</h1>
+                <button id="next-period" class="nav-button">Próxima Semana &gt; </button>
+                <div id="current-month-display" class="month-display"></div>
+            </header>
+
+            <div id="calendar-view">
+                </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* * ----------------------------------------
+         * 3. Lógica JavaScript
+         * ----------------------------------------
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarView = document.getElementById('calendar-view');
+            const prevPeriodBtn = document.getElementById('prev-period');
+            const nextPeriodBtn = document.getElementById('next-period');
+            const monthDisplay = document.getElementById('current-month-display');
+            
+            const hours = [
+                '08:00', '09:00', '10:00', '11:00', '14:00', '15:00',
+                '16:00', '17:00', '18:00', '19:00'
+            ];
+            const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+            const getDateOnly = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const today = getDateOnly(new Date());
+
+            let currentStartDate = getDateOnly(new Date()); 
+            const dayOfWeek = currentStartDate.getDay();
+            const offset = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
+            currentStartDate.setDate(currentStartDate.getDate() - offset);
+            
+            // --- Funções de Persistência ---
+            const generateKey = (date, time, field) => {
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1; 
+                const dayOfMonth = date.getDate();
+                return `agenda-${year}-${month}-${dayOfMonth}-${time}-${field}`;
+            };
+            const loadAppointment = (key) => localStorage.getItem(key) || '';
+            const saveAppointment = (key, value) => localStorage.setItem(key, value);
+            
+            // --- Função para colorir a célula de agendamento ---
+            const colorAppointmentCell = (cell) => {
+                const inputs = cell.querySelectorAll('input');
+                
+                cell.classList.remove('filled-slot');
+
+                if (inputs.length > 0) {
+                    // Verifica se TODOS os campos estão preenchidos
+                    const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+                    if (allFilled) {
+                        cell.classList.add('filled-slot');
+                    }
+                }
+            };
+
+            // --- Função de Renderização Principal ---
+
+            const renderCalendar = () => {
+                let tableHTML = '<table class="schedule-table">';
+                
+                // 1. Configuração do Mês e Indicador de Mudança
+                const startMonthName = currentStartDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                const endDay = new Date(currentStartDate);
+                endDay.setDate(endDay.getDate() + 6); 
+                const endMonthName = endDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+                let monthString;
+                let monthIndicator = '';
+
+                if (startMonthName === endMonthName) {
+                    monthString = `Período: ${startMonthName.charAt(0).toUpperCase() + startMonthName.slice(1)}`;
+                } else {
+                    monthString = `Período: ${startMonthName.charAt(0).toUpperCase() + startMonthName.slice(1)} - ${endMonthName.charAt(0).toUpperCase() + endMonthName.slice(1)}`;
+                    monthIndicator = '<span class="month-indicator">MÊS MUDOU</span>';
+                }
+                monthDisplay.innerHTML = monthString + monthIndicator;
+                
+                // 2. Cabeçalho da Tabela
+                tableHTML += '<thead><tr>';
+                tableHTML += '<th class="time-column">Horário</th>'; 
+
+                let currentDay = new Date(currentStartDate);
+                const weekDates = []; 
+
+                for (let i = 0; i < 7; i++) {
+                    const dayName = dayNames[i];
+                    const dateString = currentDay.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                    
+                    const renderedDateOnly = getDateOnly(currentDay);
+                    const dayIndex = i; 
+                    
+                    const isToday = renderedDateOnly.getTime() === today.getTime();
+                    const isPastDay = renderedDateOnly.getTime() < today.getTime(); 
+                    const isWeekend = dayIndex >= 5; 
+
+                    let headerClass = '';
+                    if (isWeekend) {
+                        headerClass = ' weekend-day-header'; 
+                    } else if (isToday) {
+                        headerClass = ' today-header';
+                    } else if (isPastDay) {
+                        headerClass = ' past-day-header'; 
+                    }
+                    
+                    tableHTML += `<th class="header-cell${headerClass}">${dayName} <span class="day-header">(${dateString})</span></th>`;
+                    
+                    weekDates.push(new Date(currentDay)); 
+                    currentDay.setDate(currentDay.getDate() + 1);
+                }
+                tableHTML += '</tr></thead>';
+
+                // 3. Corpo da Tabela
+                tableHTML += '<tbody>';
+                
+                hours.forEach(time => {
+                    tableHTML += '<tr>';
+                    tableHTML += `<td class="time-column">${time}</td>`; 
+
+                    weekDates.forEach((date, dayIndex) => {
+                        const isWeekend = dayIndex >= 5; 
+                        
+                        let cellContent = '';
+                        let cellClass = '';
+
+                        const renderedDateOnly = getDateOnly(date);
+                        const isTodayCell = renderedDateOnly.getTime() === today.getTime();
+                        const isPastDayCell = renderedDateOnly.getTime() < today.getTime(); 
+                        
+                        if (isWeekend) {
+                            cellClass = ' weekend-day-cell'; 
+                            cellContent = 'Não Disponível';
+                        } else {
+                            if (isTodayCell) {
+                                cellClass = ' today-cell';
+                            } else if (isPastDayCell) {
+                                cellClass = ' past-day-cell';
+                            }
+                            
+                            const nomeKey = generateKey(date, time, 'nome');
+                            const nossKey = generateKey(date, time, 'noss');
+                            const zapKey = generateKey(date, time, 'zap');
+                            
+                            const savedNome = loadAppointment(nomeKey);
+                            const savedNOSS = loadAppointment(nossKey);
+                            const savedZap = loadAppointment(zapKey);
+
+                            const isFilled = savedNome.trim() !== '' && savedNOSS.trim() !== '' && savedZap.trim() !== '';
+                            if (isFilled) {
+                                cellClass += ' filled-slot';
+                            }
+
+                            cellContent = `
+                                <label for="${nomeKey}">Nome:</label>
+                                <input type="text" id="${nomeKey}" data-key="${nomeKey}" value="${savedNome}" placeholder="Nome">
+                                <label for="${nossKey}">N°SS:</label>
+                                <input type="text" id="${nossKey}" data-key="${nossKey}" value="${savedNOSS}" placeholder="NºSS">
+                                <label for="${zapKey}">Zap/Contato:</label>
+                                <input type="text" id="${zapKey}" data-key="${zapKey}" value="${savedZap}" placeholder="WhatsApp">
+                            `;
+                        }
+
+                        tableHTML += `<td class="appointment-slot${cellClass}">${cellContent}</td>`;
+                    });
+
+                    tableHTML += '</tr>';
+                });
+
+                tableHTML += '</tbody></table>';
+                
+                calendarView.innerHTML = tableHTML;
+                addInputListeners();
+            };
+
+            const addInputListeners = () => {
+                const inputs = calendarView.querySelectorAll('.appointment-slot:not(.weekend-day-cell) input');
+                inputs.forEach(input => {
+                    input.addEventListener('input', (event) => {
+                        const target = event.target;
+                        const key = target.getAttribute('data-key');
+                        const value = target.value;
+                        
+                        saveAppointment(key, value);
+
+                        const cell = target.closest('.appointment-slot');
+                        if (cell) {
+                            colorAppointmentCell(cell);
+                        }
+                    });
+                });
+            };
+
+            // --- Controles de Navegação (7 dias) ---
+            const DAYS_TO_ADVANCE = 7; 
+
+            nextPeriodBtn.addEventListener('click', () => {
+                currentStartDate.setDate(currentStartDate.getDate() + DAYS_TO_ADVANCE);
+                renderCalendar();
+            });
+
+            prevPeriodBtn.addEventListener('click', () => {
+                currentStartDate.setDate(currentStartDate.getDate() - DAYS_TO_ADVANCE);
+                renderCalendar();
+            });
+
+            renderCalendar();
+        });
+    </script>
+</body>
+</html>
